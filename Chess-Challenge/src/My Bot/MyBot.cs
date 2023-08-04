@@ -6,7 +6,11 @@ public class MyBot : IChessBot
 {
     public Move Think(Board board, Timer timer)
     {
-        Move[] moves = board.GetLegalMoves();
+        
+        // Tmp line pls remove
+        Console.WriteLine(MiniMax(board, 3, true, board.IsWhiteToMove).eval);
+        
+        
         return MiniMax(board, 3, true, board.IsWhiteToMove).bestMove;
     }
 
@@ -36,6 +40,20 @@ public class MyBot : IChessBot
         // If we have reached our depth or checkmate then we eval
         if (depth == 0 || board.IsInCheckmate()) // TODO: add game is over 
         {
+            if (board.IsInCheckmate())
+            {
+                // Eval checkmate
+                // IsBotWhite XOR LastMoveWhite
+                if (isWhite ^ (!board.IsWhiteToMove))
+                {
+                    return (int.MaxValue, Move.NullMove);
+                }
+                else
+                {
+                    return (int.MinValue, Move.NullMove);
+                }
+            }
+            
             // Evaluate Position
             // Return Eval
             return (BasicEval(board, isWhite), Move.NullMove); // Do I need to return the right move?
