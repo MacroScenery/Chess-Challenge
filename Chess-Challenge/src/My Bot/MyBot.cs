@@ -7,9 +7,7 @@ public class MyBot : IChessBot
     public Move Think(Board board, Timer timer)
     {
         Move[] moves = board.GetLegalMoves();
-        Console.WriteLine(board.GetPieceList(PieceType.Bishop, true).Count);
-
-        return moves[0];
+        return MiniMax(board, 3, true).bestMove;
     }
 
 
@@ -17,59 +15,67 @@ public class MyBot : IChessBot
     // Min is good for Opp
 
     // TODO: Figure out return type for MiniMax
-    public int MiniMax(Board board, int depth, bool MaxPlayer) // MaxPlayer is our bot
+    public (int eval, Move bestMove) MiniMax(Board board, int depth, bool MaxPlayer) // MaxPlayer is our bot
     {
         // If we have reached our depth or checkmate then we eval
         if (depth == 0 || board.IsInCheckmate()) // TODO: add game is over 
         {
             // Evaluate Position
-
-            
-
+            Random rand = new Random();
             // Return Eval
-            return 0;
+            return (rand.Next(), Move.NullMove); // Do I need to return the right move?
         }
 
         // Bot's turn
         if (MaxPlayer)
         {
             int maxEval = int.MinValue;
+            Move BestMaxMove = Move.NullMove;
             foreach (Move Move in board.GetLegalMoves())
             {
                 // Make the move
                 board.MakeMove(Move);
                 // Eval the move
-                maxEval = System.Math.Max(maxEval, MiniMax(board, depth - 1, false));
+                int currentEval = MiniMax(board, depth - 1, false).eval;
+                if (currentEval > maxEval)
+                {
+                    maxEval = currentEval;
+                    BestMaxMove = Move;
+                }
+                //maxEval = System.Math.Max(maxEval, MiniMax(board, depth - 1, false).eval);
                 // Undo Move
                 board.UndoMove(Move);
             }
 
 
             // Return final eval
-            return maxEval;
+            return (maxEval, BestMaxMove);
         }
 
         // Opp's turn
         else
         {
             int minEval = int.MaxValue;
+            Move BestMinMove = Move.NullMove;
             foreach (Move Move in board.GetLegalMoves())
             {
                 // Make the move
                 board.MakeMove(Move);
                 // Eval the move
-                minEval = System.Math.Min(minEval, MiniMax(board, depth - 1, true));
+                int currentEval = MiniMax(board, depth - 1, false).eval;
+                if (currentEval < minEval)
+                {
+                    minEval = currentEval;
+                    BestMinMove = Move;
+                }
                 // Undo Move
                 board.UndoMove(Move);
             }
 
 
             // Return Eval
-            return minEval;
+            return (minEval, BestMinMove);
         }
-        
-        
-        return -1;
     }
 
 }
